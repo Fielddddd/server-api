@@ -1,11 +1,12 @@
 const express = require("express");
-const fetch = require("node-fetch");
+// แก้ fetch เป็นการใช้ dynamic import สำหรับ ES Module ของ node-fetch
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const app = express();
 const port = process.env.PORT || 8000;
 
 const customers = [
-    {id: 2535, name:"Charlie Doe", birthdate: "1990-01-01"},
-    {id: 1234, name:"Steven Adams", birthdate: "1990-01-01"}
+    {id: 2535, name: "Charlie Doe", birthdate: "1990-01-01"},
+    {id: 1234, name: "Steven Adams", birthdate: "1990-01-01"}
 ];
 
 app.use(express.json());
@@ -82,7 +83,11 @@ app.get('/customers', (req, res) => {
 app.get('/customers/:id', (req, res) => {
     const id = req.params.id;
     const myCustomer = customers.find(item => item.id == id);
-    res.send(myCustomer);
+    if (myCustomer) {
+        res.send(myCustomer);
+    } else {
+        res.status(404).send({ error: "Customer not found" });
+    }
 });
 
 // DELETE /customers/:id - ลบลูกค้าตาม id
