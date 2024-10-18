@@ -1,7 +1,7 @@
 const express = require("express");
 const fetch = require("node-fetch");
 const app = express();
-const port = 8000;
+const port = process.env.PORT || 8000;
 
 const customers = [
     {id: 2535, name:"Charlie Doe", birthdate: "1990-01-01"},
