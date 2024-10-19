@@ -14,18 +14,29 @@ const config_url = " https://script.google.com/macros/s/AKfycbzwclqJRodyVjzYyY-N
 const logs_url = "https://app-tracking.pockethost.io/api/collections/drone_logs/records";
 
 // POST /logs - บันทึกข้อมูล logs
-app.post("/logs", async (req, res) => {
+app.post("log", async (req, res) => {
     try {
-        if (typeof req.body.max_speed === 'undefined') {
-            req.body.max_speed = 100; 
-        } else if (req.body.max_speed > 110) {
-            req.body.max_speed = 110;
+        const { drone_id, celsius, country, drone_name } = req.body;
+
+        // ตรวจสอบว่าได้รับข้อมูลที่จำเป็นหรือไม่
+        if (!drone_id || !celsius || !country || !drone_name) {
+            return res.status(400).send({ error: "Missing required fields." });
         }
 
+        // เตรียมข้อมูลสำหรับบันทึกลงฐานข้อมูลหรือบริการที่ต้องการ
+        const logData = {
+            drone_id,
+            celsius,
+            country,
+            drone_name,
+            createdAt: new Date() // เพิ่มวันที่เวลาปัจจุบัน
+        };
+
+        // ทำการส่งข้อมูลไปยัง API ของคุณ
         const rawData = await fetch(logs_url, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(req.body)
+            body: JSON.stringify(logData)
         });
 
         if (!rawData.ok) {
@@ -38,6 +49,7 @@ app.post("/logs", async (req, res) => {
         res.status(500).send({ error: "Error logging temperature" });
     }
 });
+
 
 // GET /logs - ดึงข้อมูล logs ทั้งหมด
 app.get("/logs", async (req, res) => {
