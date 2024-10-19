@@ -14,7 +14,7 @@ const config_url = " https://script.google.com/macros/s/AKfycbzwclqJRodyVjzYyY-N
 const logs_url = "https://app-tracking.pockethost.io/api/collections/drone_logs/records";
 
 // POST /logs - บันทึกข้อมูล logs
-app.post("log", async (req, res) => {
+app.post("/log", async (req, res) => {
     try {
         const { drone_id, celsius, country, drone_name } = req.body;
 
@@ -43,12 +43,16 @@ app.post("log", async (req, res) => {
             return res.status(rawData.status).send({ error: 'Failed to log temperature.' });
         }
 
-        res.send({ status: "success", message: "Temperature logged successfully." });
+        // Optional: อ่านข้อมูล JSON ที่ได้รับกลับ
+        const jsonResponse = await rawData.json(); // หากจำเป็นต้องใช้ข้อมูลตอบกลับ
+
+        res.send({ status: "success", message: "Temperature logged successfully.", data: jsonResponse });
     } catch (error) {
         console.error("Error logging temperature:", error);
         res.status(500).send({ error: "Error logging temperature" });
     }
 });
+
 
 
 // GET /logs - ดึงข้อมูล logs ทั้งหมด
