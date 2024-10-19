@@ -1,5 +1,4 @@
 const express = require("express");
-// แก้ fetch เป็นการใช้ dynamic import สำหรับ ES Module ของ node-fetch
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const app = express();
 const port = process.env.PORT || 8000;
@@ -23,7 +22,7 @@ app.post("/log", async (req, res) => {
             return res.status(400).send({ error: "Missing required fields." });
         }
 
-        // เตรียมข้อมูลสำหรับบันทึกลงฐานข้อมูลหรือบริการที่ต้องการ
+        // ข้อมูลสำหรับบันทึก
         const logData = {
             drone_id,
             celsius,
@@ -32,7 +31,7 @@ app.post("/log", async (req, res) => {
             createdAt: new Date() // เพิ่มวันที่เวลาปัจจุบัน
         };
 
-        // ทำการส่งข้อมูลไปยัง API ของคุณ
+        // ส่งข้อมูลไปยัง API 
         const rawData = await fetch(logs_url, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -43,8 +42,8 @@ app.post("/log", async (req, res) => {
             return res.status(rawData.status).send({ error: 'Failed to log temperature.' });
         }
 
-        // Optional: อ่านข้อมูล JSON ที่ได้รับกลับ
-        const jsonResponse = await rawData.json(); // หากจำเป็นต้องใช้ข้อมูลตอบกลับ
+        // อ่านข้อมูล JSON ที่ได้รับกลับ
+        const jsonResponse = await rawData.json(); 
 
         res.send({ status: "success", message: "Temperature logged successfully.", data: jsonResponse });
     } catch (error) {
@@ -57,9 +56,9 @@ app.post("/log", async (req, res) => {
 // GET /logs - ดึงข้อมูล logs ทั้งหมด
 app.get("/logs", async (req, res) => {
     try {
-        const allLogs = []; // เก็บ logs ทั้งหมด
-        let page = 1; // เริ่มต้นที่หน้าแรก
-        let hasMoreData = true; // ตัวแปรเพื่อตรวจสอบว่ามีข้อมูลเพิ่มเติมหรือไม่
+        const allLogs = []; 
+        let page = 1; 
+        let hasMoreData = true; 
 
         while (hasMoreData) {
             const rawData = await fetch(`${logs_url}?page=${page}`, { method: "GET" });
@@ -97,9 +96,9 @@ app.get("/configs", async (req, res) => {
         const jsonData = await rawData.json();
         console.log("Received data:", jsonData); // พิมพ์ข้อมูลที่ได้รับ
 
-        const config = jsonData.data || []; // ดึงข้อมูลจาก jsonData.data แทน jsonData.items
+        const config = jsonData.data || []; 
 
-        // ปรับค่าของ max_speed ตามเงื่อนไขที่กำหนด
+        // ปรับค่าของ max_speed ตามเงื่อนไข
         config.forEach(item => {
             if (item.max_speed === undefined || item.max_speed === null || item.max_speed === "") {
                 item.max_speed = 100; // ถ้าไม่มี max_speed ให้ตั้งค่าเป็น 100
@@ -124,15 +123,15 @@ app.get("/configs/:id", async (req, res) => {
             throw new Error(`HTTP error! status: ${rawData.status}`);
         }
         const jsonData = await rawData.json();
-        console.log("Received data:", jsonData); // พิมพ์ข้อมูลที่ได้รับ
+        console.log("Received data:", jsonData);
 
-        const configs = jsonData.data || []; // ดึงข้อมูลทั้งหมดจาก jsonData.data
-        const id = parseInt(req.params.id); // แปลงพารามิเตอร์ id เป็นจำนวนเต็ม
+        const configs = jsonData.data || []; 
+        const id = parseInt(req.params.id);
 
         // กรองข้อมูลโดยใช้ drone_id
         const filteredConfig = configs.filter(config => config.drone_id === id); 
 
-        // ปรับค่าของ max_speed ตามเงื่อนไขที่กำหนด
+        // ปรับค่าของ max_speed ตามเงื่อนไข
         filteredConfig.forEach(item => {
             if (item.max_speed === undefined || item.max_speed === null || item.max_speed === "") {
                 item.max_speed = 100; // ถ้าไม่มี max_speed ให้ตั้งค่าเป็น 100
@@ -155,16 +154,16 @@ app.get("/configs/:id", async (req, res) => {
 
 // GET /status/:id - ดึงข้อมูล condition ของ config ที่มี drone_id ตามที่ระบุ
 app.get("/status/:id", async (req, res) => {
-    const droneId = req.params.id; // ดึง drone_id จากพารามิเตอร์
+    const droneId = req.params.id; 
     try {
         const rawData = await fetch(config_url, { method: "GET" });
         if (!rawData.ok) {
             throw new Error(`HTTP error! status: ${rawData.status}`);
         }
         const jsonData = await rawData.json();
-        console.log("Received data:", jsonData); // พิมพ์ข้อมูลที่ได้รับ
+        console.log("Received data:", jsonData); 
 
-        const configs = jsonData.data || []; // ดึงข้อมูลทั้งหมดจาก jsonData.data
+        const configs = jsonData.data || []; 
         // ค้นหา config ที่ตรงกับ drone_id ที่ระบุ
         const filteredConfig = configs.find(config => config.drone_id === parseInt(droneId));
 
