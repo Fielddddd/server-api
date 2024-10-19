@@ -3,6 +3,9 @@ const express = require("express");
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const app = express();
 const port = process.env.PORT || 8000;
+const cors = require('cors');
+app.use(cors());
+
 
 
 app.use(express.json());
