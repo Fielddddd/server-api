@@ -60,13 +60,21 @@ app.get("/logs", async (req, res) => {
     try {
         const rawData = await fetch(logs_url, { method: "GET" });
         const jsonData = await rawData.json();
-        const logs = jsonData.items;
-        res.send(logs);
+
+        // ตรวจสอบว่ามี items หรือไม่
+        if (!jsonData.items || !Array.isArray(jsonData.items)) {
+            console.error("No items found in fetched data");
+            return res.status(404).send({ error: "No logs found" });
+        }
+
+        const logs = jsonData.items; // เก็บ logs
+        res.send(logs); // ส่ง logs ให้ client
     } catch (error) {
         console.error("Error fetching logs:", error);
         res.status(500).send({ error: "Error fetching logs" });
     }
 });
+
 
 // GET /configs - ดึงข้อมูล configs ทั้งหมด
 app.get("/configs", async (req, res) => {
