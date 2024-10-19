@@ -57,22 +57,33 @@ app.post("/log", async (req, res) => {
 // GET /logs - ดึงข้อมูล logs ทั้งหมด
 app.get("/logs", async (req, res) => {
     try {
-        const rawData = await fetch(logs_url, { method: "GET" });
-        const jsonData = await rawData.json();
+        const allLogs = []; // เก็บ logs ทั้งหมด
+        let page = 1; // เริ่มต้นที่หน้าแรก
+        let hasMoreData = true; // ตัวแปรเพื่อตรวจสอบว่ามีข้อมูลเพิ่มเติมหรือไม่
 
-        // ตรวจสอบว่ามี items หรือไม่
-        if (!jsonData.items || !Array.isArray(jsonData.items)) {
-            console.error("No items found in fetched data");
-            return res.status(404).send({ error: "No logs found" });
+        while (hasMoreData) {
+            const rawData = await fetch(`${logs_url}?page=${page}`, { method: "GET" });
+            const jsonData = await rawData.json();
+
+            // ตรวจสอบว่ามี items หรือไม่
+            if (!jsonData.items || !Array.isArray(jsonData.items)) {
+                console.error("No items found in fetched data");
+                return res.status(404).send({ error: "No logs found" });
+            }
+
+            // เพิ่ม logs จากหน้าใหม่ไปยัง allLogs
+            allLogs.push(...jsonData.items); 
+            hasMoreData = jsonData.items.length > 0; // ตรวจสอบว่ามีข้อมูลในหน้าใหม่หรือไม่
+            page++; // ขยับไปยังหน้าใหม่
         }
 
-        const logs = jsonData.items; // เก็บ logs
-        res.send(logs); // ส่ง logs ให้ client
+        res.send(allLogs); // ส่ง logs ทั้งหมดให้ client
     } catch (error) {
         console.error("Error fetching logs:", error);
         res.status(500).send({ error: "Error fetching logs" });
     }
 });
+
 
 
 
