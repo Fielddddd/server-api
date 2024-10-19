@@ -54,7 +54,6 @@ app.post("/log", async (req, res) => {
 });
 
 
-
 // GET /logs - ดึงข้อมูล logs ทั้งหมด
 app.get("/logs", async (req, res) => {
     try {
@@ -74,6 +73,7 @@ app.get("/logs", async (req, res) => {
         res.status(500).send({ error: "Error fetching logs" });
     }
 });
+
 
 
 // GET /configs - ดึงข้อมูล configs ทั้งหมด
