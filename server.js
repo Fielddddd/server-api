@@ -60,13 +60,23 @@ app.get("/configs", async (req, res) => {
         console.log("Received data:", jsonData); // พิมพ์ข้อมูลที่ได้รับ
 
         const config = jsonData.data || []; // ดึงข้อมูลจาก jsonData.data แทน jsonData.items
-        
+
+        // ปรับค่าของ max_speed ตามเงื่อนไขที่กำหนด
+        config.forEach(item => {
+            if (item.max_speed === undefined || item.max_speed === null || item.max_speed === "") {
+                item.max_speed = 100; // ถ้าไม่มี max_speed ให้ตั้งค่าเป็น 100
+            } else if (item.max_speed > 110) {
+                item.max_speed = 110; // ถ้า max_speed มากกว่า 110 ให้ตั้งค่าเป็น 110
+            }
+        });
+
         res.send(config); // ส่งข้อมูล config กลับไปยังผู้ใช้
     } catch (error) {
         console.error("Error fetching config:", error);
         res.status(500).send({ error: "Error fetching config" });
     }
 });
+
 
 // GET /configs/:id - ดึงข้อมูล config ตาม drone_id
 app.get("/configs/:id", async (req, res) => {
@@ -80,7 +90,18 @@ app.get("/configs/:id", async (req, res) => {
 
         const configs = jsonData.data || []; // ดึงข้อมูลทั้งหมดจาก jsonData.data
         const id = parseInt(req.params.id); // แปลงพารามิเตอร์ id เป็นจำนวนเต็ม
-        const filteredConfig = configs.filter(config => config.drone_id === id); // กรองข้อมูลโดยใช้ drone_id
+
+        // กรองข้อมูลโดยใช้ drone_id
+        const filteredConfig = configs.filter(config => config.drone_id === id); 
+
+        // ปรับค่าของ max_speed ตามเงื่อนไขที่กำหนด
+        filteredConfig.forEach(item => {
+            if (item.max_speed === undefined || item.max_speed === null || item.max_speed === "") {
+                item.max_speed = 100; // ถ้าไม่มี max_speed ให้ตั้งค่าเป็น 100
+            } else if (item.max_speed > 110) {
+                item.max_speed = 110; // ถ้า max_speed มากกว่า 110 ให้ตั้งค่าเป็น 110
+            }
+        });
 
         if (filteredConfig.length > 0) {
             res.send(filteredConfig); // ส่งข้อมูลที่กรองกลับไปยังผู้ใช้
@@ -92,6 +113,7 @@ app.get("/configs/:id", async (req, res) => {
         res.status(500).send({ error: "Error fetching config" });
     }
 });
+
 
 // GET /status/:id - ดึงข้อมูล condition ของ config ที่มี drone_id ตามที่ระบุ
 app.get("/status/:id", async (req, res) => {
