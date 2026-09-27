@@ -179,19 +179,6 @@ app.get("/status/:id", async (req, res) => {
 });
 
 
-// DELETE /customers/:id - ลบลูกค้าตาม id
-app.delete('/customers/:id', (req, res) => {
-    const id = req.params.id;
-    const index = customers.findIndex(item => item.id == id);
-    if (index !== -1) {
-        customers.splice(index, 1);
-        res.send({ status: "success", message: "Customer Deleted" });
-    } else {
-        res.status(404).send({ error: "Customer not found" });
-    }
-});
-
-
 // GET / - หน้าแรก
 app.get('/', (req, res) => {
     res.send('Hello World!');
